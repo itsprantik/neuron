@@ -22,7 +22,14 @@ export interface LossSample {
   epoch: number
   loss: number
 }
-
+/** People who ask their system for less motion start with the signal flow off. */
+function prefersReducedMotion(): boolean {
+  try {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  } catch {
+    return false
+  }
+}
 const EPOCHS_PER_FRAME = 5
 const MAX_SAMPLES = 300
 
@@ -55,6 +62,9 @@ export class LabStore {
   loss = 0
   accuracy = 0
   running = false
+    /** Signal-flow animation in the network diagram: on/off and speed (0 to 100). */
+  flow = !prefersReducedMotion()
+  flowSpeed = 60
 
   private version = 0
   private listeners = new Set<() => void>()
@@ -170,7 +180,17 @@ export class LabStore {
     this.recompute()
     this.emit()
   }
+  /** Changes the learning rate without resetting the network. */
+  setLr(lr: number): void {
+    this.config = { ...this.config, lr }
+    this.emit()
+  }
 
+  setFlow(patch: { on?: boolean; speed?: number }): void {
+    if (patch.on !== undefined) this.flow = patch.on
+    if (patch.speed !== undefined) this.flowSpeed = patch.speed
+    this.emit()
+  }
   setProbe(x: number, y: number): void {
     this.probe = {
       x: Math.max(-1, Math.min(1, x)),

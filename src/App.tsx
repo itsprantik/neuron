@@ -1,4 +1,6 @@
 import { useCallback, useState } from 'react'
+import GlassControlPanel from './components/GlassControlPanel'
+import hero from './assets/hero.jpg'
 import { glass } from './components/glass'
 import { NavMenu } from './components/NavMenu'
 import { NeuronHelp } from './components/NeuronHelp'
@@ -15,6 +17,8 @@ function App() {
   const [lab] = useState(() => new LabStore())
   const [coreTab, setCoreTab] = useState<CoreTab>('learn')
   const [helpOpen, setHelpOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const closeSettings = useCallback(() => setSettingsOpen(false), [])
   const closeHelp = useCallback(() => setHelpOpen(false), [])
   const openLesson = () => {
     setCurrent('core')
@@ -35,6 +39,19 @@ function App() {
         }}
       />
 
+      {/* Hero: circuit-board image behind the top of the page, fading out into the grid. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[26rem] opacity-70"
+        style={{
+          backgroundImage: `url(${hero})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'right center',
+          maskImage: 'linear-gradient(to bottom, black 35%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 35%, transparent)',
+        }}
+      />
+
       <h1 className="sr-only">
         NEURON — {module.label}
       </h1>
@@ -44,6 +61,15 @@ function App() {
         <NavMenu current={current} onSelect={setCurrent} />
 
         <div className="ml-auto flex items-center gap-2">
+            <button
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded={settingsOpen}
+              onClick={() => setSettingsOpen((o) => !o)}
+              className={`${glass} rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-150 hover:bg-white/15`}
+            >
+              Settings
+            </button>
           <button
             type="button"
             aria-haspopup="dialog"
@@ -72,7 +98,11 @@ function App() {
           )}
         </div>
       </main>
-
+      {settingsOpen && (
+        <div className="fixed right-3 top-16 z-30 max-h-[calc(100vh-5rem)] w-[min(92vw,420px)] overflow-y-auto rounded-[26px] md:right-6">
+          <GlassControlPanel lab={lab} onClose={closeSettings} />
+        </div>
+      )}
       {helpOpen && <NeuronHelp onClose={closeHelp} onOpenLesson={openLesson} />}
     </div>
   )

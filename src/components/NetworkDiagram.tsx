@@ -1,4 +1,4 @@
-import { useState } from 'react'
+
 import type { LabStore } from '../lab/store'
 import { layerName, neuronName, useLab } from '../lab/useLab'
 import { Panel, Readout } from './Panel'
@@ -7,14 +7,7 @@ const W = 640
 const GAP = 54 // vertical distance between neurons in a layer
 const R = 19 // neuron radius
 
-/** People who ask their system for less motion start with the signal flow off. */
-function prefersReducedMotion(): boolean {
-  try {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  } catch {
-    return false
-  }
-}
+
 
 /** The drawing is only as tall as its biggest layer needs, so small networks do not float in empty space. */
 function layout(sizes: number[]): { pos: { x: number; y: number }[][]; H: number } {
@@ -35,7 +28,7 @@ export function NetworkDiagram({ lab }: { lab: LabStore }) {
   const { net, probeResult, selected } = lab
   const last = net.sizes.length - 1
   const { pos, H } = layout(net.sizes)
-  const [flow, setFlow] = useState(() => !prefersReducedMotion())
+  const { flow, flowSpeed } = lab
 
   const neurons = net.sizes.reduce((a, b) => a + b, 0)
   const connections = net.weights.reduce((t, m) => t + m.length * m[0].length, 0)
@@ -51,7 +44,7 @@ export function NetworkDiagram({ lab }: { lab: LabStore }) {
           <input
             type="checkbox"
             checked={flow}
-            onChange={(e) => setFlow(e.target.checked)}
+            onChange={(e) => lab.setFlow({ on: e.target.checked })}
             className="accent-hi"
           />
           Signal flow
@@ -107,7 +100,7 @@ export function NetworkDiagram({ lab }: { lab: LabStore }) {
                     className="pointer-events-none"
                   >
                     <animateMotion
-                      dur="2.2s"
+                      dur={`${(4.6 - flowSpeed * 0.04).toFixed(2)}s`}
                       begin={`${(((k * 7 + j * 3 + i) % 6) * 0.37).toFixed(2)}s`}
                       repeatCount="indefinite"
                       path={`M${from.x},${from.y} L${to.x},${to.y}`}

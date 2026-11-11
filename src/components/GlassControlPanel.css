@@ -1,0 +1,292 @@
+
+.liquid-panel {
+  --glass-bg: rgba(24, 28, 43, 0.58);
+  --glass-border: rgba(255, 255, 255, 0.13);
+  --text-main: #f5f6ff;
+  --text-muted: #a4a9bd;
+  --accent: #9875ff;
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: min(100%, 520px);
+  padding: 26px;
+  color: var(--text-main);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 26px;
+
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+
+  backdrop-filter: blur(32px) saturate(160%);
+  -webkit-backdrop-filter: blur(32px) saturate(160%);
+
+  font-family: inherit;
+}
+
+.liquid-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 5% 0%,
+      rgba(135, 104, 255, 0.16),
+      transparent 42%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.08),
+      transparent 45%
+    );
+}
+
+.liquid-header,
+.liquid-setting,
+.setting-heading,
+.liquid-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.liquid-header {
+  align-items: flex-start;
+  margin-bottom: 22px;
+}
+
+.liquid-eyebrow {
+  color: #ad91ff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.liquid-header h2 {
+  margin: 8px 0 5px;
+  font-size: 21px;
+  letter-spacing: -0.7px;
+}
+
+.liquid-header p,
+.setting-info span {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.liquid-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 11px;
+  border: 1px solid var(--glass-border);
+  border-radius: 30px;
+  color: #c8cbd9;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #64dfad;
+  box-shadow: 0 0 10px rgba(100, 223, 173, 0.65);
+}
+
+.liquid-divider {
+  height: 1px;
+  margin: 19px 0;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.liquid-setting {
+  min-height: 48px;
+  margin: 15px 0;
+}
+
+.setting-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.setting-info label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.glass-select {
+  width: 175px;
+  padding: 10px 13px;
+  color: white;
+  background: rgba(255, 255, 255, 0.075);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 12px;
+  outline: none;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.glass-select option {
+  color: white;
+  background: #202337;
+}
+
+.glass-select:focus-visible,
+.reset-button:focus-visible,
+.glass-switch:focus-visible,
+.glass-slider:focus-visible {
+  outline: 2px solid #a98cff;
+  outline-offset: 4px;
+}
+
+.slider-setting {
+  display: block;
+  margin: 23px 0;
+}
+
+.setting-heading output {
+  color: #c4b1ff;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.glass-slider {
+  display: block;
+  width: 100%;
+  height: 5px;
+  margin: 18px 0 10px;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 20px;
+
+  background: linear-gradient(
+    to right,
+    #9c7aff 0%,
+    #9c7aff var(--progress),
+    rgba(255, 255, 255, 0.16) var(--progress),
+    rgba(255, 255, 255, 0.16) 100%
+  );
+
+  cursor: pointer;
+}
+
+.glass-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 17px;
+  height: 17px;
+  border: 2px solid white;
+  border-radius: 50%;
+  background: #a58aff;
+  box-shadow: 0 0 12px rgba(155, 122, 255, 0.55);
+}
+
+.glass-slider::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: 2px solid white;
+  border-radius: 50%;
+  background: #a58aff;
+  box-shadow: 0 0 12px rgba(155, 122, 255, 0.55);
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  color: #858ba3;
+  font-size: 10px;
+}
+
+.glass-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 43px;
+  height: 25px;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: background 180ms ease;
+}
+
+.glass-switch span {
+  display: block;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
+  transition: transform 180ms ease;
+}
+
+.glass-switch.active {
+  background: #8864ed;
+}
+
+.glass-switch.active span {
+  transform: translateX(17px);
+}
+
+.liquid-footer {
+  padding-top: 5px;
+}
+
+.liquid-footer > span {
+  color: #858ba3;
+  font-size: 10px;
+}
+
+.reset-button {
+  padding: 9px 13px;
+  color: #d5c7ff;
+  background: rgba(155, 122, 255, 0.12);
+  border: 1px solid rgba(155, 122, 255, 0.22);
+  border-radius: 10px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 180ms ease;
+}
+
+.reset-button:hover {
+  background: rgba(155, 122, 255, 0.23);
+}
+
+@media (max-width: 480px) {
+  .liquid-panel {
+    padding: 19px;
+    border-radius: 21px;
+  }
+
+  .liquid-status {
+    font-size: 9px;
+  }
+
+  .glass-select {
+    width: 145px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-switch,
+  .glass-switch span,
+  .reset-button {
+    transition: none;
+  }
+}
+/* Controls that are not built yet (AI model, temperature, light theme). */
+.glass-select:disabled,
+.glass-slider:disabled,
+.glass-switch:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
