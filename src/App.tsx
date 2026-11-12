@@ -1,15 +1,18 @@
-import { useCallback, useState } from 'react'
-import GlassControlPanel from './components/GlassControlPanel'
+import { useCallback, useEffect, useState } from 'react'
 import hero from './assets/hero.jpg'
+import GlassControlPanel from './components/GlassControlPanel'
 import { glass } from './components/glass'
 import { NavMenu } from './components/NavMenu'
 import { NeuronHelp } from './components/NeuronHelp'
 import { LabStore } from './lab/store'
 import { MODULES } from './modules'
 import type { ModuleId } from './modules'
+import { AcademyPage } from './pages/AcademyPage'
 import { CorePage } from './pages/CorePage'
 import type { CoreTab } from './pages/CorePage'
 import { PlannedPage } from './pages/PlannedPage'
+import { VaultPage } from './pages/VaultPage'
+import { explain, loadPrefs, loadProgress, savePrefs, saveProgress } from './vault/vault'
 
 function App() {
   const [current, setCurrent] = useState<ModuleId>('core')
@@ -17,7 +20,10 @@ function App() {
   const [lab] = useState(() => new LabStore())
   const [coreTab, setCoreTab] = useState<CoreTab>('learn')
   const [helpOpen, setHelpOpen] = useState(false)
+  const [doneLessons, setDoneLessons] = useState<string[]>([])
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [loaded, setLoaded] = useState(false)
+  const [vaultError, setVaultError] = useState<string | null>(null)
   const closeSettings = useCallback(() => setSettingsOpen(false), [])
   const closeHelp = useCallback(() => setHelpOpen(false), [])
   const openLesson = () => {
@@ -25,6 +31,43 @@ function App() {
     setCoreTab('learn')
     setHelpOpen(false)
   }
+  const markDone = (id: string) => setDoneLessons((d) => (d.includes(id) ? d : [...d, id]))
+  const tryInCore = (tab: CoreTab) => {
+    setCurrent('core')
+    setCoreTab(tab)
+  }
+
+  // Restore saved progress and preferences once. Until this finishes nothing is written back,
+  // so an empty start can never overwrite what was saved.
+  useEffect(() => {
+    Promise.all([loadProgress(), loadPrefs()])
+      .then(([progress, prefs]) => {
+        setDoneLessons((d) => [...new Set([...progress, ...d])])
+        if (prefs) {
+          lab.setLr(prefs.lr)
+          lab.setFlow({ on: prefs.flow, speed: prefs.flowSpeed })
+        }
+      })
+      .catch((e) => setVaultError(explain(e)))
+      .finally(() => setLoaded(true))
+  }, [lab])
+
+  useEffect(() => {
+    if (loaded) saveProgress(doneLessons).catch((e) => setVaultError(explain(e)))
+  }, [loaded, doneLessons])
+
+  useEffect(() => {
+    if (!loaded) return
+    let last = ''
+    return lab.subscribe(() => {
+      const prefs = { lr: lab.config.lr, flow: lab.flow, flowSpeed: lab.flowSpeed }
+      const json = JSON.stringify(prefs)
+      if (json === last) return
+      last = json
+      savePrefs(prefs).catch((e) => setVaultError(explain(e)))
+    })
+  }, [lab, loaded])
+
   const module = MODULES.find((m) => m.id === current) ?? MODULES[0]
 
   return (
@@ -61,15 +104,15 @@ function App() {
         <NavMenu current={current} onSelect={setCurrent} />
 
         <div className="ml-auto flex items-center gap-2">
-            <button
-              type="button"
-              aria-haspopup="dialog"
-              aria-expanded={settingsOpen}
-              onClick={() => setSettingsOpen((o) => !o)}
-              className={`${glass} rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-150 hover:bg-white/15`}
-            >
-              Settings
-            </button>
+          <button
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded={settingsOpen}
+            onClick={() => setSettingsOpen((o) => !o)}
+            className={`${glass} rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-150 hover:bg-white/15`}
+          >
+            Settings
+          </button>
           <button
             type="button"
             aria-haspopup="dialog"
@@ -93,16 +136,29 @@ function App() {
         <div className="mx-auto max-w-[1400px]">
           {module.id === 'core' ? (
             <CorePage lab={lab} tab={coreTab} onTab={setCoreTab} />
+          ) : module.id === 'academy' ? (
+            <AcademyPage done={doneLessons} onDone={markDone} onTry={tryInCore} />
+          ) : module.id === 'vault' ? (
+            <VaultPage
+              lab={lab}
+              done={doneLessons}
+              error={vaultError}
+              onError={setVaultError}
+              onCleared={() => setDoneLessons([])}
+              onOpenLab={() => tryInCore('lab')}
+            />
           ) : (
             <PlannedPage module={module} />
           )}
         </div>
       </main>
+
       {settingsOpen && (
         <div className="fixed right-3 top-16 z-30 max-h-[calc(100vh-5rem)] w-[min(92vw,420px)] overflow-y-auto rounded-[26px] md:right-6">
           <GlassControlPanel lab={lab} onClose={closeSettings} />
         </div>
       )}
+
       {helpOpen && <NeuronHelp onClose={closeHelp} onOpenLesson={openLesson} />}
     </div>
   )

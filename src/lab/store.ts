@@ -1,7 +1,8 @@
 import { createNetwork, evaluate, forward, trainEpoch } from '../core/network'
 import type { ForwardResult, Network } from '../core/network'
+import { ACTIVATIONS } from '../core/activations'
 import type { ActivationName } from '../core/activations'
-import { makeDataset } from '../core/datasets'
+import { DATASETS, makeDataset } from '../core/datasets'
 import type { DatasetId, Point } from '../core/datasets'
 
 export interface NodeRef {
@@ -22,6 +23,7 @@ export interface LossSample {
   epoch: number
   loss: number
 }
+
 /** People who ask their system for less motion start with the signal flow off. */
 function prefersReducedMotion(): boolean {
   try {
@@ -30,6 +32,17 @@ function prefersReducedMotion(): boolean {
     return false
   }
 }
+
+/** Everything needed to restore an experiment: settings, learned numbers and the headline results. */
+export interface LabSnapshot {
+  config: LabConfig
+  weights: number[][][]
+  biases: number[][]
+  epoch: number
+  loss: number
+  accuracy: number
+}
+
 const EPOCHS_PER_FRAME = 5
 const MAX_SAMPLES = 300
 
@@ -62,7 +75,7 @@ export class LabStore {
   loss = 0
   accuracy = 0
   running = false
-    /** Signal-flow animation in the network diagram: on/off and speed (0 to 100). */
+  /** Signal-flow animation in the network diagram: on/off and speed (0 to 100). */
   flow = !prefersReducedMotion()
   flowSpeed = 60
 
@@ -180,6 +193,7 @@ export class LabStore {
     this.recompute()
     this.emit()
   }
+
   /** Changes the learning rate without resetting the network. */
   setLr(lr: number): void {
     this.config = { ...this.config, lr }
@@ -191,6 +205,43 @@ export class LabStore {
     if (patch.speed !== undefined) this.flowSpeed = patch.speed
     this.emit()
   }
+
+  // ---- saving and restoring (used by the Vault) ----
+  snapshot(): LabSnapshot {
+    return {
+      config: { ...this.config },
+      weights: structuredClone(this.net.weights),
+      biases: structuredClone(this.net.biases),
+      epoch: this.epoch,
+      loss: this.loss,
+      accuracy: this.accuracy,
+    }
+  }
+
+  /** Restores a saved experiment. Returns false, changing nothing, if the data does not fit a valid network. */
+  load(s: LabSnapshot): boolean {
+    const c = s?.config
+    if (!c || !(c.dataset in DATASETS) || !(c.activation in ACTIVATIONS)) return false
+    if (![0, 1, 2].includes(c.hiddenLayers) || !Number.isInteger(c.width) || c.width < 1 || c.width > 12) return false
+    if (!Number.isFinite(c.lr) || !Number.isFinite(c.seed) || !Number.isInteger(s.epoch) || s.epoch < 0) return false
+    const net = buildNetwork(c)
+    const fits = (saved: unknown, shape: unknown): boolean =>
+      Array.isArray(shape)
+        ? Array.isArray(saved) && saved.length === shape.length && shape.every((x, i) => fits(saved[i], x))
+        : typeof saved === 'number' && Number.isFinite(saved)
+    if (!fits(s.weights, net.weights) || !fits(s.biases, net.biases)) return false
+    this.stop()
+    this.config = { ...c }
+    this.net = { ...net, weights: s.weights, biases: s.biases }
+    this.data = makeDataset(c.dataset)
+    this.selected = null
+    this.epoch = s.epoch
+    this.recompute()
+    this.history = [{ epoch: this.epoch, loss: this.loss }]
+    this.emit()
+    return true
+  }
+
   setProbe(x: number, y: number): void {
     this.probe = {
       x: Math.max(-1, Math.min(1, x)),

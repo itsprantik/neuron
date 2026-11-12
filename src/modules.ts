@@ -54,8 +54,8 @@ export const MODULES: ModuleInfo[] = [
     id: 'academy',
     code: '04',
     label: 'ACADEMY',
-    built: false,
-    when: 'Planned for day 7',
+    built: true,
+    when: 'Built',
     description: 'Short lessons, knowledge checks and challenges about how AI works.',
     plans: [
       'AI fundamentals, machine learning, neural networks',
@@ -67,8 +67,8 @@ export const MODULES: ModuleInfo[] = [
     id: 'vault',
     code: '05',
     label: 'VAULT',
-    built: false,
-    when: 'Planned for day 8',
+    built: true,
+    when: 'Built',
     description: 'Local storage for your projects, experiments and progress, stored only in this browser.',
     plans: [
       'Saved projects and previous experiments',
