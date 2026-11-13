@@ -13,7 +13,9 @@ import type { CoreTab } from './pages/CorePage'
 import { PlannedPage } from './pages/PlannedPage'
 import { VaultPage } from './pages/VaultPage'
 import { explain, loadPrefs, loadProgress, savePrefs, saveProgress } from './vault/vault'
-
+  import { TEMPLATES } from './create/templates'
+  import type { Draft } from './create/templates'
+  import { CreatePage } from './pages/CreatePage'
 function App() {
   const [current, setCurrent] = useState<ModuleId>('core')
   // Created once and kept here, so your experiment survives switching modules.
@@ -21,6 +23,7 @@ function App() {
   const [coreTab, setCoreTab] = useState<CoreTab>('learn')
   const [helpOpen, setHelpOpen] = useState(false)
   const [doneLessons, setDoneLessons] = useState<string[]>([])
+    const [draft, setDraft] = useState<Draft>(() => ({ name: TEMPLATES[0].name, ...TEMPLATES[0].files }))
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [vaultError, setVaultError] = useState<string | null>(null)
@@ -138,6 +141,8 @@ function App() {
             <CorePage lab={lab} tab={coreTab} onTab={setCoreTab} />
           ) : module.id === 'academy' ? (
             <AcademyPage done={doneLessons} onDone={markDone} onTry={tryInCore} />
+          ) : module.id === 'create' ? (
+            <CreatePage draft={draft} onDraft={setDraft} />
           ) : module.id === 'vault' ? (
             <VaultPage
               lab={lab}

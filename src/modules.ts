@@ -39,8 +39,8 @@ export const MODULES: ModuleInfo[] = [
     id: 'create',
     code: '03',
     label: 'CREATE',
-    built: false,
-    when: 'Planned for day 9 (editor and sandbox), then day 12 (AI generation)',
+    built: true,
+    when: 'Built',
     description:
       'Build small HTML, CSS and JavaScript projects, edit them, and preview them safely.',
     plans: [

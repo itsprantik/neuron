@@ -118,3 +118,36 @@ export async function storageUsed(): Promise<number | null> {
     return null
   }
 }
+
+// ---- Saved Create projects ----
+export const MAX_PROJECTS = 20
+const MAX_PROJECT_CHARS = 200_000
+
+export interface SavedProject {
+  id: string
+  name: string
+  savedAt: number
+  html: string
+  css: string
+  js: string
+}
+
+export async function listProjects(): Promise<SavedProject[]> {
+  const all = await run<SavedProject[]>('readonly', (s) => s.getAll(IDBKeyRange.bound('proj:', 'proj:\uffff')))
+  return all
+    .filter((p) => p && typeof p.id === 'string' && [p.html, p.css, p.js].every((t) => typeof t === 'string'))
+    .sort((a, b) => b.savedAt - a.savedAt)
+}
+
+export async function saveProject(name: string, files: { html: string; css: string; js: string }): Promise<void> {
+  if (files.html.length + files.css.length + files.js.length > MAX_PROJECT_CHARS) {
+    throw new Error('This project is too large to save (limit about 200 000 characters).')
+  }
+  const keys = await run<IDBValidKey[]>('readonly', (s) => s.getAllKeys(IDBKeyRange.bound('proj:', 'proj:\uffff')))
+  if (keys.length >= MAX_PROJECTS) throw new Error(`The Vault holds at most ${MAX_PROJECTS} projects. Delete one first.`)
+  const id = Date.now().toString(36)
+  const entry: SavedProject = { id, name: name.trim() || 'Untitled project', savedAt: Date.now(), ...files }
+  await put(`proj:${id}`, entry)
+}
+
+export const deleteProject = (id: string) => run('readwrite', (s) => s.delete(`proj:${id}`))
