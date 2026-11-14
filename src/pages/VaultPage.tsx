@@ -9,11 +9,12 @@ import {
   clearVault,
   deleteExperiment,
   explain,
+  listDamagedExperiments,
   listExperiments,
   saveExperiment,
   storageUsed,
 } from '../vault/vault'
-import type { SavedExperiment } from '../vault/vault'
+import type { DamagedExperiment, SavedExperiment } from '../vault/vault'
 
 interface VaultPageProps {
   lab: LabStore
@@ -38,6 +39,7 @@ function formatSize(bytes: number): string {
 export function VaultPage({ lab, done, error, onError, onCleared, onOpenLab }: VaultPageProps) {
   useLab(lab)
   const [items, setItems] = useState<SavedExperiment[] | null>(null)
+  const [damaged, setDamaged] = useState<DamagedExperiment[]>([])
   const [name, setName] = useState('')
   const [note, setNote] = useState<string | null>(null)
   const [confirmAll, setConfirmAll] = useState(false)
@@ -45,10 +47,13 @@ export function VaultPage({ lab, done, error, onError, onCleared, onOpenLab }: V
 
   const refresh = useCallback(async () => {
     try {
-      setItems(await listExperiments())
+      const [valid, broken] = await Promise.all([listExperiments(), listDamagedExperiments()])
+      setItems(valid)
+      setDamaged(broken)
       setUsed(await storageUsed())
     } catch (e) {
       setItems([])
+      setDamaged([])
       onError(explain(e))
     }
   }, [onError])
@@ -93,7 +98,7 @@ export function VaultPage({ lab, done, error, onError, onCleared, onOpenLab }: V
       <Panel
         code="05.A"
         title="Saved experiments"
-        aside={<Chip tone="info">{items ? `${items.length} of ${MAX_EXPERIMENTS}` : '…'}</Chip>}
+        aside={<Chip tone="info">{items ? `${items.length + damaged.length} of ${MAX_EXPERIMENTS}` : '…'}</Chip>}
         className="self-start"
       >
         <div className="mb-5 rounded-md border border-line/50 bg-bg p-3">
@@ -118,7 +123,7 @@ export function VaultPage({ lab, done, error, onError, onCleared, onOpenLab }: V
 
         {items === null ? (
           <p className="text-muted">Loading…</p>
-        ) : items.length === 0 ? (
+        ) : items.length === 0 && damaged.length === 0 ? (
           <p className="text-muted">Nothing saved yet. Train something in the Network lab, then save it here.</p>
         ) : (
           <ul className="space-y-2">
@@ -145,6 +150,32 @@ export function VaultPage({ lab, done, error, onError, onCleared, onOpenLab }: V
               </li>
             ))}
           </ul>
+        )}
+
+        {damaged.length > 0 && (
+          <div className="mt-5">
+            <p className="mb-2 text-xs text-muted">
+              These saved entries are damaged and cannot be loaded. They still count toward the limit, so delete them.
+            </p>
+            <ul className="space-y-2">
+              {damaged.map((d) => (
+                <li key={d.id} className="flex flex-wrap items-center gap-3 rounded-md border border-neg/40 bg-bg px-3 py-2.5">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{d.name}</p>
+                    <p className="text-xs text-neg">Damaged entry</p>
+                  </div>
+                  <button
+                    type="button"
+                    className={btn}
+                    aria-label={`Delete damaged entry ${d.name}`}
+                    onClick={() => act(() => deleteExperiment(d.id).then(() => undefined))}
+                  >
+                    Delete
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </Panel>
 

@@ -77,4 +77,4 @@ export function validateSnapshot(x: unknown): LabSnapshot | null {
     loss: isNum(x.loss) ? x.loss : 0,
     accuracy: isNum(x.accuracy) ? x.accuracy : 0,
   }
-}
+} 

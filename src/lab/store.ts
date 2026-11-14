@@ -1,9 +1,9 @@
 import { createNetwork, evaluate, forward, trainEpoch } from '../core/network'
 import type { ForwardResult, Network } from '../core/network'
-import { ACTIVATIONS } from '../core/activations'
 import type { ActivationName } from '../core/activations'
-import { DATASETS, makeDataset } from '../core/datasets'
+import { makeDataset } from '../core/datasets'
 import type { DatasetId, Point } from '../core/datasets'
+import { validateSnapshot } from './snapshot'
 
 export interface NodeRef {
   layer: number
@@ -218,25 +218,34 @@ export class LabStore {
     }
   }
 
-  /** Restores a saved experiment. Returns false, changing nothing, if the data does not fit a valid network. */
-  load(s: LabSnapshot): boolean {
-    const c = s?.config
-    if (!c || !(c.dataset in DATASETS) || !(c.activation in ACTIVATIONS)) return false
-    if (![0, 1, 2].includes(c.hiddenLayers) || !Number.isInteger(c.width) || c.width < 1 || c.width > 12) return false
-    if (!Number.isFinite(c.lr) || !Number.isFinite(c.seed) || !Number.isInteger(s.epoch) || s.epoch < 0) return false
-    const net = buildNetwork(c)
-    const fits = (saved: unknown, shape: unknown): boolean =>
-      Array.isArray(shape)
-        ? Array.isArray(saved) && saved.length === shape.length && shape.every((x, i) => fits(saved[i], x))
-        : typeof saved === 'number' && Number.isFinite(saved)
-    if (!fits(s.weights, net.weights) || !fits(s.biases, net.biases)) return false
+  /**
+   * Restores a saved experiment. Accepts anything: the data is checked first, and a snapshot that is not
+   * a valid experiment returns false without changing the current one. Everything is built before any
+   * state is replaced, so a failure part-way can never leave the lab half-loaded.
+   */
+  load(input: unknown): boolean {
+    const s = validateSnapshot(input)
+    if (!s) return false
+
+    let net: Network, data: Point[], result: { loss: number; accuracy: number }, probeResult: ForwardResult
+    try {
+      net = { ...buildNetwork(s.config), weights: s.weights, biases: s.biases }
+      data = makeDataset(s.config.dataset)
+      result = evaluate(net, data)
+      probeResult = forward(net, [this.probe.x, this.probe.y])
+    } catch {
+      return false
+    }
+
     this.stop()
-    this.config = { ...c }
-    this.net = { ...net, weights: s.weights, biases: s.biases }
-    this.data = makeDataset(c.dataset)
+    this.config = s.config
+    this.net = net
+    this.data = data
     this.selected = null
     this.epoch = s.epoch
-    this.recompute()
+    this.loss = result.loss
+    this.accuracy = result.accuracy
+    this.probeResult = probeResult
     this.history = [{ epoch: this.epoch, loss: this.loss }]
     this.emit()
     return true
