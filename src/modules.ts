@@ -24,15 +24,15 @@ export const MODULES: ModuleInfo[] = [
     id: 'ai',
     code: '02',
     label: 'AI',
-    built: false,
-    when: 'Planned for days 11–12 (built last)',
+    built: true,
+    when: 'Local runtime required',
     description:
-      'An offline AI tutor that runs a small language model on this computer using llama.cpp. Nothing is sent to the internet.',
+      'An offline AI tutor powered by a local language model through llama.cpp. Nothing is sent to a cloud AI service.',
     plans: [
       'Explain AI, machine learning and neural networks',
-      'Explain simulator results and generated code',
-      'Model states: not installed, downloading, loading, ready, error',
-      'Model install only after you approve it. No automatic downloads.',
+      'Stream local answers and show the model thinking output',
+      'Detect when the local server is offline, loading or ready',
+      'Use your own GGUF model without automatic downloads',
     ],
   },
   {
