@@ -152,7 +152,8 @@ export async function streamChat(
   try {
     while (true) {
       const { done, value } = await reader.read()
-      buffer += decoder.decode(value, { stream: !done })
+      // SSE may use CRLF or LF line endings. Normalize before finding event boundaries.
+      buffer += decoder.decode(value, { stream: !done }).replace(/\r\n/g, '\n')
 
       let boundary = buffer.indexOf('\n\n')
       while (boundary >= 0) {
