@@ -16,6 +16,7 @@ import { explain, loadPrefs, loadProgress, savePrefs, saveProgress } from './vau
   import { TEMPLATES } from './create/templates'
   import type { Draft } from './create/templates'
   import { CreatePage } from './pages/CreatePage'
+  import { AIPage } from './pages/AIPage'
 function App() {
   const [current, setCurrent] = useState<ModuleId>('core')
   // Created once and kept here, so your experiment survives switching modules.
@@ -138,23 +139,25 @@ function App() {
       <main className="blueprint-grid relative -mt-16 min-h-screen px-3 pb-8 pt-20 md:px-6">
         <div className="mx-auto max-w-[1400px]">
           {module.id === 'core' ? (
-            <CorePage lab={lab} tab={coreTab} onTab={setCoreTab} />
-          ) : module.id === 'academy' ? (
-            <AcademyPage done={doneLessons} onDone={markDone} onTry={tryInCore} />
-          ) : module.id === 'create' ? (
-            <CreatePage draft={draft} onDraft={setDraft} />
-          ) : module.id === 'vault' ? (
-            <VaultPage
-              lab={lab}
-              done={doneLessons}
-              error={vaultError}
-              onError={setVaultError}
-              onCleared={() => setDoneLessons([])}
-              onOpenLab={() => tryInCore('lab')}
-            />
-          ) : (
-            <PlannedPage module={module} />
-          )}
+  <CorePage lab={lab} tab={coreTab} onTab={setCoreTab} />
+) : module.id === 'ai' ? (
+  <AIPage />
+) : module.id === 'academy' ? (
+  <AcademyPage done={doneLessons} onDone={markDone} onTry={tryInCore} />
+) : module.id === 'create' ? (
+  <CreatePage draft={draft} onDraft={setDraft} />
+) : module.id === 'vault' ? (
+  <VaultPage
+    lab={lab}
+    done={doneLessons}
+    error={vaultError}
+    onError={setVaultError}
+    onCleared={() => setDoneLessons([])}
+    onOpenLab={() => tryInCore('lab')}
+  />
+) : (
+  <PlannedPage module={module} />
+)}
         </div>
       </main>
 

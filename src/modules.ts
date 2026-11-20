@@ -1,3 +1,4 @@
+
 export type ModuleId = 'core' | 'ai' | 'create' | 'academy' | 'vault'
 
 export interface ModuleInfo {
@@ -24,15 +25,16 @@ export const MODULES: ModuleInfo[] = [
     id: 'ai',
     code: '02',
     label: 'AI',
-    built: false,
-    when: 'Planned for days 11–12 (built last)',
+    built: true,
+    when: 'Local integration',
     description:
-      'An offline AI tutor that runs a small language model on this computer using llama.cpp. Nothing is sent to the internet.',
+      'An offline AI tutor powered by Qwen3 and llama.cpp.',
     plans: [
-      'Explain AI, machine learning and neural networks',
-      'Explain simulator results and generated code',
-      'Model states: not installed, downloading, loading, ready, error',
-      'Model install only after you approve it. No automatic downloads.',
+      'Local model connection',
+      'Streaming AI conversations',
+      'Thinking output panel',
+      'Educational AI assistant',
+      'No cloud API keys',
     ],
   },
   {
@@ -42,12 +44,12 @@ export const MODULES: ModuleInfo[] = [
     built: true,
     when: 'Built',
     description:
-      'Build small HTML, CSS and JavaScript projects, edit them, and preview them safely.',
+      'Build small HTML, CSS and JavaScript projects.',
     plans: [
-      'Code editor with live preview in a sandboxed iframe',
-      'Generated code treated as untrusted and never run in the main app',
-      'Save projects locally and download the files',
-      'AI generation added once the local model is working',
+      'Code editor with live preview',
+      'Sandboxed project execution',
+      'Save projects locally',
+      'AI generation integration',
     ],
   },
   {
@@ -56,11 +58,13 @@ export const MODULES: ModuleInfo[] = [
     label: 'ACADEMY',
     built: true,
     when: 'Built',
-    description: 'Short lessons, knowledge checks and challenges about how AI works.',
+    description: 'Lessons and challenges about AI.',
     plans: [
-      'AI fundamentals, machine learning, neural networks',
-      'Activation functions, forward propagation, training',
-      'LLM basics, quantization, local inference, AI limitations',
+      'AI fundamentals',
+      'Neural networks',
+      'Activation functions',
+      'Forward propagation',
+      'LLM fundamentals',
     ],
   },
   {
@@ -69,11 +73,13 @@ export const MODULES: ModuleInfo[] = [
     label: 'VAULT',
     built: true,
     when: 'Built',
-    description: 'Local storage for your projects, experiments and progress, stored only in this browser.',
+    description:
+      'Local storage for projects, experiments and progress.',
     plans: [
-      'Saved projects and previous experiments',
-      'Learning progress and preferences',
-      'Storage limits and clear error messages',
+      'Saved projects',
+      'Previous experiments',
+      'Learning progress',
+      'Preferences',
     ],
   },
 ]
