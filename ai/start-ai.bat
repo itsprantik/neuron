@@ -35,7 +35,19 @@ echo Starting NEURON AI...
 echo Keep this window open while using the AI.
 echo.
 
-llama-server.exe -m "%MODEL%" --host 127.0.0.1 --port 8080 -c 4096 -t 4 --jinja --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0 --presence-penalty 1.5
+set "CORS_OPTION="
+llama-server.exe --help 2>&1 | findstr /c:"--cors-origins" >nul
+if not errorlevel 1 set "CORS_OPTION=--cors-origins localhost"
+
+if defined CORS_OPTION (
+    echo CORS restricted to localhost.
+) else (
+    echo WARNING: This llama.cpp build has no localhost CORS restriction flag.
+    echo Keep this server local and do not expose it to other devices or public websites.
+)
+echo.
+
+llama-server.exe -m "%MODEL%" --host 127.0.0.1 --port 8080 %CORS_OPTION% -c 4096 -t 4 --jinja --temp 0.7 --top-p 0.8 --top-k 20 --min-p 0 --presence-penalty 1.5
 
 echo.
 echo NEURON AI server stopped.
