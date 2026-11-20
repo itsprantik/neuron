@@ -303,7 +303,7 @@ export function AIPage({ onStatusChange }: AIPageProps) {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-[11px] text-muted">Thinking is enabled. Replies may take a moment.</p>
               {sending ? (
-                <button type="button" className={btn} onClick={stop}>Stop generation</button>
+                <button type="button" className={btn} onClick={stop}>Stop response</button>
               ) : (
                 <button type="submit" className={btnPrimary} disabled={status !== 'ready' || !draft.trim()}>
                   Send message
