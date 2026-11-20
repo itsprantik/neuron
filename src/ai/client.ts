@@ -1,5 +1,9 @@
 export const AI_SERVER_URL = 'http://127.0.0.1:8080'
 
+function isLocalFrontend(): boolean {
+  return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+}
+
 export type AiServerStatus = 'checking' | 'offline' | 'loading' | 'ready' | 'error'
 
 export interface ChatMessage {
@@ -23,6 +27,8 @@ interface ChatChunk {
 }
 
 export async function checkAiServer(signal?: AbortSignal): Promise<AiServerStatus> {
+  if (!isLocalFrontend()) return 'offline'
+
   try {
     const response = await fetch(`${AI_SERVER_URL}/health`, {
       method: 'GET',
@@ -49,6 +55,10 @@ export async function streamChat(
   signal: AbortSignal,
   onUpdate: (update: StreamUpdate) => void,
 ): Promise<void> {
+  if (!isLocalFrontend()) {
+    throw new Error('The NEURON AI tutor can only connect when this app is opened on localhost.')
+  }
+
   const response = await fetch(`${AI_SERVER_URL}/v1/chat/completions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
