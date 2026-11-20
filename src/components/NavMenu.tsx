@@ -96,7 +96,7 @@ export function NavMenu({ current, onSelect }: NavMenuProps) {
                   <span className={`font-mono text-sm ${isCurrent ? 'text-hi' : 'text-muted'}`}>{m.code}</span>
                   <span className="flex-1">
                     <span className="block text-sm font-medium">{m.label}</span>
-                    <span className="block text-[11px] text-muted">{m.built ? 'Ready to use' : 'Planned, not built yet'}</span>
+                    <span className="block text-[11px] text-muted">{m.id === 'ai' ? 'Local model required' : 'Ready to use'}</span>
                   </span>
                   {isCurrent && (
                     <svg viewBox="0 0 12 12" aria-hidden="true" className="h-3 w-3 text-hi">
