@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import hero from './assets/hero.jpg'
+import { checkAiServer } from './ai/client'
+import type { AiServerStatus } from './ai/client'
 import GlassControlPanel from './components/GlassControlPanel'
 import { glass } from './components/glass'
 import { NavMenu } from './components/NavMenu'
@@ -9,7 +11,6 @@ import { MODULES } from './modules'
 import type { ModuleId } from './modules'
 import { AcademyPage } from './pages/AcademyPage'
 import { AIPage } from './pages/AIPage'
-import type { AiServerStatus } from './ai/client'
 import { CorePage } from './pages/CorePage'
 import type { CoreTab } from './pages/CorePage'
 import { VaultPage } from './pages/VaultPage'
@@ -32,6 +33,20 @@ function App() {
   const [aiStatus, setAiStatus] = useState<AiServerStatus>('checking')
   const closeSettings = useCallback(() => setSettingsOpen(false), [])
   const closeHelp = useCallback(() => setHelpOpen(false), [])
+  const refreshAiStatus = useCallback(async () => {
+    try {
+      setAiStatus(await checkAiServer())
+    } catch {
+      // A status request that is interrupted should not overwrite the current status.
+    }
+  }, [])
+
+  useEffect(() => {
+    void refreshAiStatus()
+    const timer = window.setInterval(() => void refreshAiStatus(), 8000)
+    return () => window.clearInterval(timer)
+  }, [refreshAiStatus])
+
   const openLesson = () => {
     setCurrent('core')
     setCoreTab('learn')
