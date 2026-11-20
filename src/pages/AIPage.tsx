@@ -177,7 +177,7 @@ export function AIPage({ onStatusChange }: AIPageProps) {
                 <p className="max-w-xl text-sm text-muted">
                   {status === 'error'
                     ? 'Check the llama-server terminal for its error message, then restart ai/start-ai.bat.'
-                    : 'NEURON connects only to llama.cpp on this computer. It will not download a model or contact a cloud AI service.'}
+                    : 'Open NEURON from localhost to use the tutor. It connects only to llama.cpp on this computer and never downloads a model or contacts a cloud AI service.'}
                 </p>
                 <button type="button" className={btn} onClick={() => void refreshStatus()} disabled={checking}>
                   {checking ? 'Checking…' : 'Check again'}
