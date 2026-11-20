@@ -131,7 +131,7 @@ function App() {
             title="The local language model is built last and is not installed yet."
           >
             <span className="inline-block h-2 w-2 rounded-full border border-muted" aria-hidden="true" />
-            AI MODEL: Made but make sure bat file is running in the background.
+            AI MODEL: llama.cpp (Qwen3-0.6B) 
           </p>
         </div>
       </div>
