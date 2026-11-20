@@ -8,14 +8,16 @@ import { LabStore } from './lab/store'
 import { MODULES } from './modules'
 import type { ModuleId } from './modules'
 import { AcademyPage } from './pages/AcademyPage'
+import { AIPage } from './pages/AIPage'
+import type { AiServerStatus } from './ai/client'
 import { CorePage } from './pages/CorePage'
 import type { CoreTab } from './pages/CorePage'
-import { PlannedPage } from './pages/PlannedPage'
 import { VaultPage } from './pages/VaultPage'
 import { explain, loadPrefs, loadProgress, savePrefs, saveProgress } from './vault/vault'
-  import { TEMPLATES } from './create/templates'
-  import type { Draft } from './create/templates'
-  import { CreatePage } from './pages/CreatePage'
+import { TEMPLATES } from './create/templates'
+import type { Draft } from './create/templates'
+import { CreatePage } from './pages/CreatePage'
+
 function App() {
   const [current, setCurrent] = useState<ModuleId>('core')
   // Created once and kept here, so your experiment survives switching modules.
@@ -23,10 +25,11 @@ function App() {
   const [coreTab, setCoreTab] = useState<CoreTab>('learn')
   const [helpOpen, setHelpOpen] = useState(false)
   const [doneLessons, setDoneLessons] = useState<string[]>([])
-    const [draft, setDraft] = useState<Draft>(() => ({ name: TEMPLATES[0].name, ...TEMPLATES[0].files }))
+  const [draft, setDraft] = useState<Draft>(() => ({ name: TEMPLATES[0].name, ...TEMPLATES[0].files }))
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [vaultError, setVaultError] = useState<string | null>(null)
+  const [aiStatus, setAiStatus] = useState<AiServerStatus>('checking')
   const closeSettings = useCallback(() => setSettingsOpen(false), [])
   const closeHelp = useCallback(() => setHelpOpen(false), [])
   const openLesson = () => {
@@ -72,6 +75,15 @@ function App() {
   }, [lab, loaded])
 
   const module = MODULES.find((m) => m.id === current) ?? MODULES[0]
+  const aiStatusText = aiStatus === 'ready'
+    ? 'AI MODEL: READY'
+    : aiStatus === 'loading'
+      ? 'AI MODEL: LOADING'
+      : aiStatus === 'error'
+        ? 'AI MODEL: ERROR'
+        : aiStatus === 'checking'
+          ? 'AI MODEL: CHECKING'
+          : 'AI MODEL: OFFLINE'
 
   return (
     <div className="relative min-h-screen">
@@ -98,9 +110,7 @@ function App() {
         }}
       />
 
-      <h1 className="sr-only">
-        NEURON — {module.label}
-      </h1>
+      <h1 className="sr-only">NEURON — {module.label}</h1>
 
       {/* Floating controls. Content scrolls underneath them. */}
       <div className="sticky top-3 z-20 mx-3 mt-3 flex items-start gap-2 md:mx-6">
@@ -127,10 +137,14 @@ function App() {
           </button>
           <p
             className={`${glass} hidden items-center gap-2 rounded-full px-3.5 py-2 font-mono text-xs text-muted sm:flex`}
-            title="The local language model is built last and is not installed yet."
+            title="Live status of the local llama.cpp server."
+            aria-live="polite"
           >
-            <span className="inline-block h-2 w-2 rounded-full border border-muted" aria-hidden="true" />
-            AI MODEL: NOT INSTALLED
+            <span
+              className={`inline-block h-2 w-2 rounded-full border ${aiStatus === 'ready' ? 'border-pos bg-pos' : aiStatus === 'error' ? 'border-neg' : 'border-muted'}`}
+              aria-hidden="true"
+            />
+            {aiStatusText}
           </p>
         </div>
       </div>
@@ -153,7 +167,7 @@ function App() {
               onOpenLab={() => tryInCore('lab')}
             />
           ) : (
-            <PlannedPage module={module} />
+            <AIPage onStatusChange={setAiStatus} />
           )}
         </div>
       </main>
