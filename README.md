@@ -1,88 +1,357 @@
 # NEURON
 
-An offline-first AI learning lab that runs in your browser. You can train a small neural network and watch it learn, read short lessons, write small web projects, and save your work. It was built for a school science exhibition, and it is meant to run on an ordinary laptop with no internet connection.
+**Learn how neural networks work. Experiment with AI. Build small projects.**
 
-## What is in it
+NEURON is a small learning app I built to make AI and neural networks easier to understand. Instead of only reading about how they work, you can experiment with them yourself.
 
-| Module | Status | What it does |
-| --- | --- | --- |
-| **CORE** | Built | A neural-network lab. "Meet a neuron" explains one neuron step by step. "Network lab" lets you pick a dataset, an activation function, 0 to 2 hidden layers and the learning rate, then train, step, edit weights by hand and probe the network. |
-| **ACADEMY** | Built | Nine short lessons with check questions, from "What is AI?" to local inference. A **Book** button opens a floating window that summarizes every lesson. |
-| **CREATE** | Built | A small HTML, CSS and JavaScript editor with a live preview, four starter templates, and saved projects. |
-| **VAULT** | Built | Saves your experiments, lesson progress and settings in this browser. |
-| **AI** | Not built yet | Planned last: an offline tutor using a small local language model (llama.cpp). The app shows a placeholder and does not download or run any model. |
+It also includes an offline AI tutor powered by Qwen3 and llama.cpp, so you can ask questions without using a cloud AI API.
 
-## Offline and privacy
+## What can you do with NEURON?
 
-- Nothing in `src/` makes a network request: no `fetch`, no `XMLHttpRequest`, no WebSocket, no web links to load. Fonts are bundled with the app.
-- You need internet **once**, to run `npm install`. After that, everything works offline.
-- Your data stays in this browser's IndexedDB on this computer. Nothing is uploaded.
-- The CREATE preview runs your code in a sandboxed frame that is blocked from the network (`default-src 'none'`) and cannot reach the NEURON page.
+| Section | What you'll find |
+|---|---|
+| **CORE** | Experiment with neural networks, change their settings, train them and see what happens. |
+| **AI** | Chat with a locally running Qwen3 model and ask questions about AI, programming and maths. |
+| **CREATE** | Write HTML, CSS and JavaScript and see your project in a live preview. |
+| **ACADEMY** | Learn AI concepts through short lessons and questions. |
+| **VAULT** | Keep your saved experiments, projects and learning progress. |
 
-## Requirements
+## What you need
 
-- Node.js 22.12 or newer (developed on Node 26)
-- A modern browser. Developed and checked in Chrome.
-- Any computer. The app is light, and it was designed for a Windows 11 laptop with 8 GB of RAM.
+Before starting, make sure you have:
 
-## Run it
+- Windows 10 or Windows 11 (the instructions below are for Windows).
+- [Node.js 22.12 or newer](https://nodejs.org/).
+- [Git](https://git-scm.com/downloads) (optional, but useful for downloading the project).
+- A modern browser such as Chrome or Edge.
+- Internet access for the initial setup and downloads.
 
+For the local AI tutor, you also need:
+
+- llama.cpp for Windows x64.
+- The Qwen3 0.6B Q8_0 GGUF model.
+
+**A note about hardware:** NEURON itself is lightweight. Running the AI model requires additional memory. Performance depends on your computer.
+
+---
+
+## 1. Download NEURON
+
+You can download the project in either of these ways.
+
+**Option A — Download from GitHub**
+
+1. Open the [NEURON repository](https://github.com/itsprantik/neuron).
+2. Click the green **Code** button.
+3. Select **Download ZIP**.
+4. Extract the downloaded folder somewhere convenient.
+5. Open the extracted `neuron` folder.
+
+**Option B — Use Git**
+
+Open a terminal and run:
+
+```bash
+git clone https://github.com/itsprantik/neuron.git
+cd neuron
 ```
+
+## 2. Install the project
+
+Open the NEURON folder in VS Code.
+
+Open the terminal using:
+
+`Terminal → New Terminal`
+
+Run:
+
+```bash
+npm install
+```
+
+Wait for the installation to finish.
+
+This downloads the packages NEURON needs to run.
+
+## 3. Start NEURON
+
+In the same terminal, run:
+
+```bash
+npm run dev
+```
+
+You should see a local address in the terminal.
+
+Open:
+
+**http://localhost:3000**
+
+NEURON should now be running in your browser.
+
+Keep the terminal open while using the development version.
+
+---
+
+## 4. Set up the offline AI tutor
+
+The AI tutor needs two things: llama.cpp (the program that runs the model) and a GGUF model file.
+
+You only need to do this setup once.
+
+### Step 4.1 — Download llama.cpp
+
+1. Open the [llama.cpp GitHub releases](https://github.com/ggml-org/llama.cpp/releases).
+2. Find a Windows x64 CPU build.
+3. Download the appropriate archive.
+4. Extract it.
+
+Make sure you have `llama-server.exe` and its required DLL files.
+
+### Step 4.2 — Download the Qwen3 model
+
+1. Open the [Qwen3 0.6B GGUF model page](https://huggingface.co/Qwen/Qwen3-0.6B-GGUF).
+2. Find the file named `Qwen3-0.6B-Q8_0.gguf`.
+3. Download it.
+
+The model file is separate from the NEURON source code, so it is not included in the GitHub repository.
+
+### Step 4.3 — Arrange the files
+
+Your NEURON folder should look like this:
+
+```text
+neuron/
+│
+├── ai/
+│   ├── llama-server.exe
+│   ├── required llama.cpp DLL files
+│   │
+│   ├── models/
+│   │   └── Qwen3-0.6B-Q8_0.gguf
+│   │
+│   └── start-ai.bat
+│
+├── src/
+├── public/
+├── package.json
+├── index.html
+└── ...
+```
+
+**Important:**
+
+- Keep `llama-server.exe` and its required DLL files inside `ai/`.
+- Put the `.gguf` model inside `ai/models/`.
+- Do not rename `start-ai.bat`.
+- Do not put the model directly inside `ai/`; it belongs in `ai/models/`.
+
+### Step 4.4 — Start the AI server
+
+Double-click:
+
+`ai/start-ai.bat`
+
+A terminal window should open and start the local model.
+
+Wait until the server finishes loading.
+
+Keep this window open while using the AI tutor.
+
+The server runs locally at:
+
+`http://127.0.0.1:8080`
+
+You can open that address in your browser to access llama.cpp's own interface.
+
+### Step 4.5 — Open NEURON AI
+
+1. Make sure NEURON is running at `http://localhost:3000`.
+2. Open the **AI** section from the navigation menu.
+3. Wait for the server status check.
+4. When it shows **LOCAL SERVER ONLINE**, you can start chatting.
+
+Try asking:
+
+- What is a neural network?
+- Explain backpropagation.
+- What are activation functions?
+- How does Qwen3 work?
+
+That's it. Your AI tutor is running on your own computer.
+
+---
+
+## 5. How to use the other sections
+
+### CORE
+
+This is where you can experiment with neural networks.
+
+You can explore how a neuron works, choose datasets, change activation functions, adjust learning rates and train networks.
+
+Try changing one setting at a time and see how the results change.
+
+### CREATE
+
+Create small web projects using HTML, CSS and JavaScript.
+
+You can edit your code and check the result in the live preview. There are also starter templates to help you get going.
+
+### ACADEMY
+
+Go through the lessons to understand the basics of artificial intelligence, machine learning and neural networks.
+
+You can also check your understanding with the lesson questions.
+
+### VAULT
+
+Your saved experiments, projects and learning progress are kept here.
+
+Your saved data is stored locally in your browser using IndexedDB.
+
+**Keep in mind:** Clearing your browser's site data can delete your saved NEURON data. It does not automatically sync between different browsers or computers.
+
+---
+
+## 6. Useful commands
+
+Open the project terminal and use these commands:
+
+| Command | Purpose |
+|---|---|
+| `npm install` | Install project dependencies |
+| `npm run dev` | Start NEURON |
+| `npm run build` | Check TypeScript and create a production build |
+| `npm run preview` | Preview the production build |
+| `npm run lint` | Check the code for lint issues |
+| `npm test` | Run the tests |
+| `npm run test:watch` | Run tests again when files change |
+
+To create a production build:
+
+```bash
+npm run build
+```
+
+The finished files will be placed inside the `dist/` folder.
+
+---
+
+## 7. Common problems
+
+### NEURON doesn't start
+
+Check that Node.js is installed:
+
+```bash
+node -v
+npm -v
+```
+
+If the commands aren't recognised, install Node.js and restart your terminal.
+
+Then run:
+
+```bash
 npm install
 npm run dev
 ```
 
-Then open http://localhost:3000. The port is fixed: if 3000 is busy, the dev server stops with an error instead of picking another port.
+### The AI server says it's offline
 
-To build and serve the production version:
+Check the following:
 
-```
-npm run build
-npm run preview
-```
+1. Is `start-ai.bat` running?
+2. Is `llama-server.exe` inside the `ai` folder?
+3. Is the model inside `ai/models/`?
+4. Did the model finish loading?
+5. Is another program already using port `8080`?
 
-## Scripts
+You can also open `http://127.0.0.1:8080/health` to check the server.
 
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Start the development server (port 3000) |
-| `npm run build` | Type-check with `tsc -b`, then build into `dist/` |
-| `npm run preview` | Serve the built app |
-| `npm run lint` | Run oxlint |
-| `npm test` | Run all tests once |
-| `npm run test:watch` | Re-run tests when files change |
+### The browser shows a connection or CORS error
 
-## Tests
+Make sure you're opening NEURON through:
 
-Tests use Vitest and run in Node. They need no browser and no internet. `fake-indexeddb` stands in for the browser's IndexedDB.
+`http://localhost:3000`
 
-- `src/core/core.test.ts`: the neural-network maths: seeded random numbers, activation functions, datasets, forward pass, and backpropagation checked against a numeric slope. It also checks that a small network learns XOR.
-- `src/lab/snapshot.test.ts`: checking of saved experiments (many kinds of bad data are refused) and `LabStore.load` (a refused load changes nothing).
-- `src/vault/vault.test.ts`: saving, the 20-item limit under simultaneous saves, unique ids, damaged entries, recovery when storage is cleared or missing, and error messages.
+The AI tutor is configured to work with a local frontend. Check the llama.cpp server output and browser console if the connection still fails.
 
-## How it is built
+### The AI model is slow
 
-- React 19, TypeScript (strict), Vite 8, Tailwind CSS v4, IBM Plex fonts.
-- **The maths** lives in `src/core` as plain functions with no React. Random numbers come from a seeded generator, so the same seed always gives the same experiment.
-- **The lab state** lives in `LabStore` (`src/lab/store.ts`), a class outside React. Components subscribe to it with `useSyncExternalStore`.
-- **Saved data** is checked by `validateSnapshot` (`src/lab/snapshot.ts`) before it is used. A bad or damaged save is refused and never changes the running lab.
-- **The Vault** (`src/vault/vault.ts`) uses one IndexedDB database named `neuron-vault`. Experiments and projects get random 96-bit ids, and the 20-item limit is enforced inside the database transaction.
+The model runs on your computer, so its speed depends on your CPU, available memory and llama.cpp settings.
 
-```
+Close unnecessary applications if your computer is running low on memory.
+
+### My saved projects disappeared
+
+NEURON stores its data in the browser. If you cleared site data, switched browsers or opened the app under a different browser address, your previous saves might not be available.
+
+---
+
+## 8. Privacy and offline use
+
+NEURON is designed to work locally.
+
+- The AI tutor communicates with your local llama.cpp server.
+- No cloud AI API key is required.
+- Your Vault data stays in your browser's local storage.
+- The CREATE preview uses a sandboxed environment.
+- The initial installation requires internet access to download dependencies and model files.
+
+Once everything is installed, the main learning features and local AI tutor can be used without an internet connection.
+
+---
+
+## 9. Project structure
+
+A quick look at the important folders:
+
+```text
 src/
-  core/      neural-network maths, activations, datasets, random numbers
-  lab/       LabStore, snapshot checking, coach messages, React hook
-  academy/   lesson content
-  create/    project templates and the preview sandbox
-  vault/     IndexedDB storage
-  components/ pages/   the interface
-  modules.ts the list of modules and their status
+│
+├── core/         Neural network calculations and datasets
+├── lab/          Experiment state and lab logic
+├── academy/      Lesson content
+├── create/       Project templates and preview sandbox
+├── vault/        Local saving and data management
+│
+├── ai/           AI client connection
+├── components/   Reusable interface components
+├── pages/        Main application pages
+│
+├── App.tsx       Main application
+└── modules.ts    Navigation and module information
+
+ai/
+├── start-ai.bat  Local AI launcher
+├── models/       Local GGUF model files
+└── llama-server  llama.cpp runtime files
 ```
 
-## Known limits
+The model and llama.cpp binaries are kept out of GitHub so the repository doesn't become unnecessarily large.
 
-- The AI module is not built. There is no language model in this version.
-- Saved data lives only in one browser on one computer. "Clear site data" in the browser deletes it, and it does not move between browsers or computers.
-- The Vault holds at most 20 experiments and 20 projects. A saved experiment must stay within the lab's own limits (up to 2 hidden layers, width up to 12).
-- Two browser tabs on the same Vault can overwrite each other's lesson progress and settings (the last one saved wins).
-- Only Chrome has been used to check the interface.
+---
+
+## Built with
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- llama.cpp
+- Qwen3 0.6B
+
+## Project
+
+**GitHub:** https://github.com/itsprantik/neuron
+
+Built by [@itsprantik](https://github.com/itsprantik).
+
+If you find a problem, feel free to open an issue on GitHub.
+
+---
+
+*NEURON — Learn it. Experiment with it. Understand it.*
